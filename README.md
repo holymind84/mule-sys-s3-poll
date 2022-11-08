@@ -1,4 +1,4 @@
-# mule-sys-s3-poll
+# Mule 4.x. How to Poll from an AWS S3 Bucket
 Mule4 Example. How to poll from an AWS S3 Bucket
 
 
