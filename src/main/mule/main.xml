@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:s3="http://www.mulesoft.org/schema/mule/s3"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="my-sys-awss3-pollFlow" doc:id="18d0895e-24d3-4828-bd72-16efaba88de6" >
+		<s3:new-object-listener doc:name="On New Object" doc:id="5b59388b-028f-486c-8e5a-c79403f77493" config-ref="Amazon_S3_Configuration" bucketName="${bucket}">
+			<scheduling-strategy >
+				<fixed-frequency frequency="5000"/>
+			</scheduling-strategy>
+		</s3:new-object-listener>
+		<set-variable value="#[payload.key]" doc:name="Set filename" doc:id="74c7fa6c-5bd7-4d6c-80d2-c2be1f465d58" variableName="filename"/>
+		<logger level="INFO" doc:name="Logger" doc:id="56abf95e-d1ae-42a2-ae12-e27b0c296e5f" message='#[output application/json&#10;---&#10;{&#10;	"where" : "after the on new object",&#10;	"when"  : now(),&#10;	&#10;	"what" : payload&#10;}]'/>
+		<s3:get-object doc:name="Get Object" doc:id="ab9292c4-b450-4df5-8098-af909af7152a" config-ref="Amazon_S3_Configuration" bucketName="#[payload.bucketName]" key="#[payload.key]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d88768d8-43b4-46ae-8e38-3d81b5424d27" message='#[output application/json&#10;---&#10;{&#10;	"where" : "after Get Object",&#10;	"when"  : now(),&#10;	&#10;	&#10;}]'/>
+		<file:write doc:id="98ca9f7e-ade9-4cf6-88ff-6bda90d239bc" path="#[p('file.dir') ++ (vars.filename default &quot;&quot;)]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e85a61ec-5939-4992-91d8-eb9023a93dae" message='#[output application/json&#10;---&#10;{&#10;	"where" : "after Write File",&#10;	"when"  : now(),&#10;	&#10;	&#10;}]'/>
+	</flow>
+</mule>
